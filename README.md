@@ -52,9 +52,9 @@ the data is fetched from a SQLite database `clustering.db`, table
 (`data/raw/amazon_book_reviews.csv`, gitignored, ~260MB) — which is what is on disk
 here.
 
-**What the guidelines describe vs. what the table contains.** The accompanying
-Data Card / problem statement advertise ~3M reviews and ten columns (including
-`Price`, `review/score`, `review/helpfulness`, `review/summary`). The actual
+**What the guidelines describe vs. what the table contains.** The Data Card lists
+ten columns (including `Price`, `review/score`, `review/helpfulness`,
+`review/summary`) and the original brief claimed ~3M reviews. The actual
 `amazon_book_reviews` table is **300,000 rows** with only **six** of those columns:
 
 `Id, Title, User_id, profileName, review/time, review/text`
