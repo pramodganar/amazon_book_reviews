@@ -1,0 +1,10 @@
+Id			Product ID (string)
+Title			Product title
+Price			Price of the product (may contain missing values)
+User_id			Unique identifier of the reviewer
+profileName		User's profile name
+review/helpfulness	Helpfulness votes in the format x/y (e.g., 7/10)
+review/score		Star rating given by user (1.0 to 5.0)
+review/time		Unix timestamp of review
+review/summary		Short summary of the review
+review/text		Full review text

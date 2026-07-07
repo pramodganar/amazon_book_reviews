@@ -1,0 +1,14 @@
+# fitted objects are reproducible from train.py
+artifacts/
+
+# raw data is large (~260MB) — not committed
+data/raw/*.csv
+data/raw/*.db
+
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+.pytest_cache/
