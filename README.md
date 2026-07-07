@@ -1,6 +1,9 @@
 # Amazon Book Reviews: Reviewer Segmentation (Unsupervised)
 
 [![tests](https://github.com/pramodganar/amazon_book_reviews/actions/workflows/tests.yml/badge.svg)](https://github.com/pramodganar/amazon_book_reviews/actions/workflows/tests.yml)
+[![live demo](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://amazonbookreviews-iskdx2dws2x2txevtrle7e.streamlit.app/)
+
+**Live demo:** https://amazonbookreviews-iskdx2dws2x2txevtrle7e.streamlit.app/
 
 Cluster ~300k Amazon book reviews into natural reviewer segments (how-to
 reviewers, enthusiastic reactors, prolific plot-summarizers, argumentative
@@ -112,6 +115,9 @@ python evaluate.py                       # train/eval/live metrics + centroid-di
 ```
 
 ### Interactive app
+
+Hosted:
+[amazonbookreviews-iskdx2dws2x2txevtrle7e.streamlit.app](https://amazonbookreviews-iskdx2dws2x2txevtrle7e.streamlit.app/)
 
 A Streamlit app lets you classify a review, browse the six segments, and see the
 model-selection and evaluation story:
