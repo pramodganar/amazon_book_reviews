@@ -1,5 +1,11 @@
-# fitted objects are reproducible from train.py
-artifacts/
+# fitted objects are reproducible from train.py; the hosted Streamlit demo needs a
+# few at runtime, so those are force-tracked and everything else here is ignored.
+artifacts/*
+!artifacts/feature_pipeline.joblib
+!artifacts/kmeans.joblib
+!artifacts/config.json
+!artifacts/cluster_meta.json
+!artifacts/scatter.parquet
 
 # raw data is large (~260MB) — not committed
 data/raw/*.csv

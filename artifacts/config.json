@@ -1,0 +1,20 @@
+{
+  "n_clusters": 6,
+  "svd_components": 200,
+  "random_state": 42,
+  "n_train": 209176,
+  "feature_dim": 210,
+  "train_metrics": {
+    "silhouette": 0.0340774767100811,
+    "davies_bouldin": 3.449900622256216,
+    "calinski_harabasz": 8972.539528680425
+  },
+  "cluster_sizes": {
+    "0": 40418,
+    "1": 43648,
+    "2": 16744,
+    "3": 41712,
+    "4": 21905,
+    "5": 44749
+  }
+}

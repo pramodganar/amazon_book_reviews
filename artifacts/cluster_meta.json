@@ -1,0 +1,236 @@
+{
+  "labels": {
+    "0": "How-to / reference reviewer",
+    "1": "Punchy popular-book reactor",
+    "2": "Prolific plot-summarizer",
+    "3": "General opinion reviewer",
+    "4": "Argumentative deep-diver",
+    "5": "Analytical critic / essayist"
+  },
+  "clusters": {
+    "0": {
+      "label": "How-to / reference reviewer",
+      "size": 40418,
+      "share": 0.1932,
+      "top_terms": [
+        "excellent",
+        "information",
+        "highly",
+        "easy",
+        "helpful",
+        "useful",
+        "informative",
+        "reference",
+        "pictures",
+        "illustrations",
+        "guide",
+        "condition"
+      ],
+      "profile": {
+        "char_len": 317.1,
+        "word_count": 53.56,
+        "avg_word_len": 4.98,
+        "upper_ratio": 0.03,
+        "exclaim_count": 0.31,
+        "question_count": 0.04,
+        "dow": 2.41,
+        "year": 2003.41,
+        "user_review_count": 1.47,
+        "product_review_count": 22.73
+      }
+    },
+    "1": {
+      "label": "Punchy popular-book reactor",
+      "size": 43648,
+      "share": 0.2087,
+      "top_terms": [
+        "read",
+        "books",
+        "loved",
+        "great",
+        "best",
+        "love",
+        "reading",
+        "really",
+        "wait",
+        "couldn",
+        "good",
+        "buy"
+      ],
+      "profile": {
+        "char_len": 405.19,
+        "word_count": 75.29,
+        "avg_word_len": 4.37,
+        "upper_ratio": 0.06,
+        "exclaim_count": 0.97,
+        "question_count": 0.05,
+        "dow": 4.56,
+        "year": 2002.03,
+        "user_review_count": 1.46,
+        "product_review_count": 212.02
+      }
+    },
+    "2": {
+      "label": "Prolific plot-summarizer",
+      "size": 16744,
+      "share": 0.08,
+      "top_terms": [
+        "novel",
+        "man",
+        "war",
+        "young",
+        "world",
+        "century",
+        "american",
+        "tale",
+        "work",
+        "readers",
+        "father",
+        "story"
+      ],
+      "profile": {
+        "char_len": 1693.87,
+        "word_count": 287.28,
+        "avg_word_len": 4.89,
+        "upper_ratio": 0.03,
+        "exclaim_count": 0.25,
+        "question_count": 0.19,
+        "dow": 2.89,
+        "year": 2004.21,
+        "user_review_count": 54.96,
+        "product_review_count": 85.94
+      }
+    },
+    "3": {
+      "label": "General opinion reviewer",
+      "size": 41712,
+      "share": 0.1994,
+      "top_terms": [
+        "read",
+        "books",
+        "story",
+        "think",
+        "reading",
+        "like",
+        "really",
+        "good",
+        "loved",
+        "thought",
+        "love",
+        "liked"
+      ],
+      "profile": {
+        "char_len": 532.88,
+        "word_count": 98.87,
+        "avg_word_len": 4.38,
+        "upper_ratio": 0.03,
+        "exclaim_count": 0.46,
+        "question_count": 0.05,
+        "dow": 1.12,
+        "year": 2001.88,
+        "user_review_count": 1.54,
+        "product_review_count": 315.79
+      }
+    },
+    "4": {
+      "label": "Argumentative deep-diver",
+      "size": 21905,
+      "share": 0.1047,
+      "top_terms": [
+        "does",
+        "did",
+        "people",
+        "just",
+        "know",
+        "like",
+        "say",
+        "question",
+        "man",
+        "make",
+        "think",
+        "yes"
+      ],
+      "profile": {
+        "char_len": 1758.52,
+        "word_count": 304.55,
+        "avg_word_len": 4.73,
+        "upper_ratio": 0.04,
+        "exclaim_count": 1.03,
+        "question_count": 2.17,
+        "dow": 2.83,
+        "year": 2003.29,
+        "user_review_count": 3.13,
+        "product_review_count": 174.07
+      }
+    },
+    "5": {
+      "label": "Analytical critic / essayist",
+      "size": 44749,
+      "share": 0.2139,
+      "top_terms": [
+        "reader",
+        "work",
+        "author",
+        "people",
+        "world",
+        "history",
+        "does",
+        "new",
+        "war",
+        "novel",
+        "fact",
+        "character"
+      ],
+      "profile": {
+        "char_len": 1432.2,
+        "word_count": 245.67,
+        "avg_word_len": 4.84,
+        "upper_ratio": 0.03,
+        "exclaim_count": 0.44,
+        "question_count": 0.0,
+        "dow": 3.02,
+        "year": 2003.4,
+        "user_review_count": 1.87,
+        "product_review_count": 93.88
+      }
+    }
+  },
+  "anova": {
+    "question_count": 39199.3,
+    "char_len": 27327.7,
+    "word_count": 27324.1,
+    "dow": 19969.3,
+    "user_review_count": 10521.0,
+    "product_review_count": 4851.5,
+    "year": 2701.0,
+    "exclaim_count": 1353.3,
+    "upper_ratio": 1014.0,
+    "avg_word_len": 221.9
+  },
+  "drift": {
+    "train": {
+      "0": 0.1932,
+      "1": 0.2087,
+      "2": 0.08,
+      "3": 0.1994,
+      "4": 0.1047,
+      "5": 0.2139
+    },
+    "eval": {
+      "0": 0.3637,
+      "1": 0.1603,
+      "2": 0.0365,
+      "3": 0.1019,
+      "4": 0.0971,
+      "5": 0.2406
+    },
+    "live": {
+      "0": 0.4975,
+      "1": 0.2462,
+      "2": 0.0049,
+      "3": 0.129,
+      "4": 0.0345,
+      "5": 0.0879
+    }
+  }
+}

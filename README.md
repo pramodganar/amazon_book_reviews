@@ -121,6 +121,10 @@ python analyze_clusters.py    # one-time: builds artifacts/cluster_meta.json
 streamlit run app.py
 ```
 
+The repo ships the fitted artifacts the app needs at runtime (pipeline, model,
+cluster metadata, 2D map), so the deployed demo runs without local training; the
+raw CSV is only needed to retrain or run `evaluate.py` / `model_selection.py`.
+
 ## Method summary
 
 1. **Clean**: drop exact duplicates, bad timestamps, empty text; keep anonymous
