@@ -77,7 +77,12 @@ per-dimension, then rescaled by `1/sqrt(#dims)` so both contribute equal total
 variance. Two tunable weights allow tilting toward topic vs. writing style. That
 this mattered is confirmed below: `user_review_count` and `dow` end up among the
 strongest cluster separators, which is only possible because numeric wasn't
-drowned.
+drowned. A weight sweep (`experiments/ablations.py`) backs the equal default:
+doubling the text weight collapses the structure (silhouette 0.001, one 34%
+mega-cluster), doubling the numeric weight lifts silhouette to 0.09 but
+degenerates the shares (a 0.5% fragment); equal weights keep the 8–21% balance.
+The equal-weight path also reproduces the shipped labels exactly (ARI 1.0), a
+parity check on the pipeline.
 
 ## 4. Model selection
 
@@ -148,9 +153,9 @@ this table and the distance drift below:
 | live  | 0.023 | 3.45 | 763 |
 
 Geometry holds across splits; clusters don't collapse out of sample. Eval scoring
-slightly above train (0.051 vs 0.034) plausibly reflects the eval window being a
-narrower, more homogeneous era plus the 15k silhouette sampling — untested, and
-either way a ~0.02 difference on a sub-0.05 metric is too small to carry meaning.
+slightly above train (0.051 vs 0.034) is mostly era homogeneity, not a fluke: on
+identical features and labels, a same-size window of late train scores 0.045
+against 0.036 for the full 1995–2009 era (`experiments/ablations.py`).
 
 **Seed stability (Adjusted Rand Index).** Refitting MiniBatchKMeans at five seeds
 on the *same* feature matrix (only the clustering init changes) gives a pairwise
@@ -164,6 +169,14 @@ it's the soft catch-all (c3) and its neighbours that churn. So the personas are
 reproducible tendencies; the precise membership is not. In production I'd fix the
 seed for a deterministic model and treat the segment definitions, not any single
 review's label, as the deliverable.
+
+**Is the churn the data or the mini-batch?** Partly the algorithm. Full KMeans on
+the same matrix (`experiments/ablations.py`) is materially more seed-stable
+(pairwise ARI mean 0.58 vs 0.32; two of three seeds near-identical at 0.99) and
+reaches silhouette 0.056–0.060 against the shipped 0.034, at 30–60s per fit. The
+continuum conclusion stands — 0.06 is still weak separation — but with hindsight
+full KMeans is the better trade at this scale, and refitting with it is the first
+improvement listed in section 8.
 
 **Cluster-share drift over time** is the most interesting result:
 
@@ -191,7 +204,11 @@ every centroid are the outliers to inspect.
    user history would fix this; the current data can't.
 3. **`dow` ranks surprisingly high** as a separator. That's more an artifact of a
    low-cardinality axis KMeans latched onto than a real "weekend reviewer" persona,
-   so I don't over-read it.
+   so I don't over-read it. Measured (`experiments/ablations.py`): refitting
+   without `dow` moves the partition no more than a seed change does (ARI 0.31
+   against the ~0.32 seed-churn baseline), and the distinctive personas persist —
+   the questioning cluster maps 96% onto its shipped counterpart, the prolific one
+   91%. `dow` inflates the ANOVA table but is not load-bearing.
 4. **LSA retains ~16% of TF-IDF variance at 200 components.** Normal for short,
    lexically diverse text, but it means topic structure is diffuse.
 5. **Near-duplicate reviews** (same text and product, different user; ~550) were
@@ -204,6 +221,8 @@ every centroid are the outliers to inspect.
 
 ## 8. Possible next steps
 
+Refit the shipped model with full KMeans — measurably more seed-stable and
+better-scoring than MiniBatch at this scale (section 6) for ~a minute of fit time.
 Sentence-transformer embeddings in place of TF-IDF+SVD (denser, better topic
 separation); LDA or BERTopic for explicit per-cluster topic labels; a cumulative
 user-history feature to make activity transfer across time; and turning the

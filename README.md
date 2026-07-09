@@ -189,7 +189,7 @@ predict.py             assign clusters to new reviews
 evaluate.py            train/eval/live metrics + centroid-distance drift
 analyze_clusters.py    build cluster metadata + 2D map for the app
 app.py                 Streamlit app
-experiments/           model_selection (k-sweep) and seed_stability (ARI)
+experiments/           model_selection (k-sweep), seed_stability (ARI), ablations
 tests/                 pytest suite for the pipeline invariants
 requirements.txt       runtime deps (requirements-dev.txt adds pytest + matplotlib)
 data/raw/              input CSV (+ Data Card, problem statement)

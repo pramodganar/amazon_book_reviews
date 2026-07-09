@@ -47,19 +47,25 @@ backs it. Items that would need an experiment the repo doesn't have are marked
   hour is constant (`pipeline.py:184`). `dow` is kept because it is cheap and
   interpretable, and its suspiciously high ANOVA rank is disclosed as a
   low-cardinality artifact rather than read as a persona (`reports/report.md` §7.3).
-  An ablation without `dow` is an open gap.
+  Measured: refitting without it moves the partition no more than a seed change
+  (ARI 0.31 vs the ~0.32 seed baseline) and the distinctive personas persist
+  (`experiments/ablations.py`).
 - **Block balancing: standardize both blocks, then scale each by 1/sqrt(#dims).**
   Otherwise 200 text dims dominate 10 numeric dims by count alone; equal total
   variance is the neutral default absent a reason to prefer topic over style
-  (`pipeline.py:347-359`). The `text_weight`/`numeric_weight` knobs exist for
-  tilting but were never exercised — sweep or remove them; open gap.
+  (`pipeline.py:347-359`). A sweep of the `text_weight`/`numeric_weight` knobs
+  confirms it (`experiments/ablations.py`): doubling text collapses structure,
+  doubling numeric degenerates the cluster shares; equal weights win.
 
 ## Model
 
 - **MiniBatchKMeans over full KMeans.** The k=2..15 sweep plus five-seed stability
   runs mean dozens of fits at `n_init=10`; MiniBatch keeps each one cheap at 209k
-  rows (`train.py:45-48`). No side-by-side with full KMeans exists — open gap,
-  including whether the mini-batch approximation contributes to the low seed-ARI.
+  rows (`train.py:45-48`). The side-by-side (`experiments/ablations.py`) shows the
+  cost of that choice: full KMeans is more seed-stable (pairwise ARI 0.58 vs 0.32)
+  and scores higher (silhouette ~0.06 vs 0.034) at 30–60s per fit, so refitting
+  with full KMeans is the first listed improvement (`reports/report.md` §8) — the
+  continuum conclusion is unchanged either way.
 - **k=6 despite no metric picking it.** Silhouette is metric-optimal at the
   degenerate k=2 and flat (~0.03–0.04) for k≥3; six is the most balanced,
   interpretable partition and no metric contradicts it (`reports/report.md` §4).
