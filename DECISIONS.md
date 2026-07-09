@@ -31,10 +31,15 @@ backs it. Items that would need an experiment the repo doesn't have are marked
 - **TF-IDF → TruncatedSVD(200).** Raw TF-IDF is ~20k-dim and sparse — unusable for
   Euclidean KMeans; 200 is a conventional LSA operating point that keeps the fit
   cheap, and the retained variance (~16%) is reported rather than hidden
-  (`pipeline.py:65-68`). Not swept against 50/100/400 — open gap.
+  (`pipeline.py:65-68`). The sweep (`experiments/sensitivity.py`) backs it: 200 is
+  the silhouette peak (0.035 vs 0.026–0.031 at 50/100/400), and 400 doubles the
+  retained variance but clusters worse with a near-empty cluster.
 - **`min_df=5`, `max_df=0.5`, 20k vocabulary cap.** Conventional guards, not tuned:
   `min_df` drops typos and IDs, `max_df` drops terms too common to separate anyone,
-  the cap bounds memory (`pipeline.py:58-63`). Sensitivity not measured — open gap.
+  the cap bounds memory (`pipeline.py:58-63`). Measured (`experiments/sensitivity.py`):
+  one-knob variants move exact labels about as much as a seed change (ARI 0.20–0.27,
+  expected under weak separation) and no variant finds stronger balanced structure —
+  the ones that lift silhouette create 0.1–0.5% fragment clusters.
 - **Custom stopwords for contraction/entity fragments.** They survive `min_df` and
   polluted top terms (`pipeline.py:229-234`).
 - **Structural features computed on RAW text before any cleaning.** Uppercase ratio

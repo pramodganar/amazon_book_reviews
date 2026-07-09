@@ -110,6 +110,19 @@ by k=8 to 10 - never negative, but never strong), and the partitions stay lopsid
 (a ~25-point micro-cluster persists from k=4 on). Same continuum-like structure as
 KMeans, no clean partition at any k.
 
+**Hyperparameter sensitivity (`experiments/sensitivity.py`).** Sweeping SVD
+dimensionality on the shipped TF-IDF: 200 components is the silhouette peak
+(0.035, vs 0.026 at 50, 0.031 at 100, 0.029 at 400) — d=400 retains 24% of the
+variance but clusters worse and produces a near-empty cluster, so extra dimensions
+add noise faster than signal. Varying the TF-IDF knobs one at a time (min_df 2/20,
+max_df 0.3/0.8, vocabulary 10k/40k) moves the exact partition roughly as much as
+changing the seed does (ARI 0.20–0.27 against the shipped labels; the seed baseline
+is ~0.32) — under weak separation, per-review labels churn with any perturbation —
+but no variant uncovers materially stronger balanced structure: the settings that
+lift silhouette (10k vocab, 0.060; max_df=0.3, 0.042) do it while carving out
+0.1–0.5% fragment clusters, whereas the shipped configuration keeps every share
+between 8 and 21%.
+
 **The headline result: these reviews are a continuum, not crisp clusters.**
 Silhouette never exceeds ~0.064 (at the degenerate k=2) and stays around 0.03 to
 0.04 for every usable k; inertia has no sharp elbow. This is expected for
@@ -210,7 +223,9 @@ every centroid are the outliers to inspect.
    the questioning cluster maps 96% onto its shipped counterpart, the prolific one
    91%. `dow` inflates the ANOVA table but is not load-bearing.
 4. **LSA retains ~16% of TF-IDF variance at 200 components.** Normal for short,
-   lexically diverse text, but it means topic structure is diffuse.
+   lexically diverse text, but it means topic structure is diffuse. The dimension
+   sweep (section 4) shows 200 is nonetheless the right operating point: 400
+   components double the retained variance yet cluster worse.
 5. **Near-duplicate reviews** (same text and product, different user; ~550) were
    kept for safety; only exact duplicates were dropped.
 6. **Seed sensitivity.** Pairwise ARI across seeds is only ~0.32 (section 6): the
