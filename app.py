@@ -77,38 +77,49 @@ with tab_try:
                         placeholder="Type or paste a book review here...")
 
     if st.button("Classify", type="primary") and text.strip():
+        # A pasted review has no real timestamp or product: pin the time to the
+        # live-era midpoint (2012-10) so temporal features are era-consistent,
+        # and use a synthetic Id/User so activity counts take the unseen default.
+        # Both choices are disclosed in the caption below.
         row = pd.DataFrame({
             "Id": ["APP"], "Title": ["app"], "User_id": [None], "profileName": [None],
             "review/time": [1350000000], "review/text": [text],
         })
-        X = fp.transform(P.clean(row))
-        c = int(km.predict(X)[0])
-        dists = km.transform(X)[0]
+        cleaned = P.clean(row)
+        if cleaned.empty:
+            st.warning("Review too short to classify: the pipeline drops reviews "
+                       f"under {P.MIN_TEXT_CHARS} characters (no usable signal).")
+        else:
+            X = fp.transform(cleaned)
+            c = int(km.predict(X)[0])
+            dists = km.transform(X)[0]
 
-        st.markdown(f"### {LABELS[c]}  (cluster {c})")
+            st.markdown(f"### {LABELS[c]}  (cluster {c})")
 
-        col1, col2 = st.columns([3, 2])
-        with col1:
-            # shorter bar = closer centroid = better fit
-            aff = pd.DataFrame({
-                "segment": [label_of(i) for i in range(len(dists))],
-                "distance": dists,
-            }).sort_values("distance")
-            fig = px.bar(aff, x="distance", y="segment", orientation="h",
-                        title="Distance to each segment centroid (shorter is a better fit)",
-                        color="segment", color_discrete_sequence=COLORS)
-            fig.update_layout(showlegend=False, height=300, yaxis_title="")
-            st.plotly_chart(fig, width="stretch")
-        with col2:
-            st.caption("What the model saw in this text")
-            feats = fp.transform_numeric(P.clean(row)).iloc[0]
-            st.dataframe(feats.rename("value").to_frame().style.format("{:.2f}"),
-                        width="stretch")
+            col1, col2 = st.columns([3, 2])
+            with col1:
+                # shorter bar = closer centroid = better fit
+                aff = pd.DataFrame({
+                    "segment": [label_of(i) for i in range(len(dists))],
+                    "distance": dists,
+                }).sort_values("distance")
+                fig = px.bar(aff, x="distance", y="segment", orientation="h",
+                            title="Distance to each segment centroid (shorter is a better fit)",
+                            color="segment", color_discrete_sequence=COLORS)
+                fig.update_layout(showlegend=False, height=300, yaxis_title="")
+                st.plotly_chart(fig, width="stretch")
+            with col2:
+                st.caption("What the model saw in this text")
+                feats = fp.transform_numeric(cleaned).iloc[0]
+                st.dataframe(feats.rename("value").to_frame().style.format("{:.2f}"),
+                            width="stretch")
 
-        st.info("Top terms in this segment: "
-                + ", ".join(meta["clusters"][str(c)]["top_terms"][:10]))
-        st.caption("An unseen product or user defaults to an activity count of 1, so a "
-                   "short review of an obscure title tends toward the short-review segments.")
+            st.info("Top terms in this segment: "
+                    + ", ".join(meta["clusters"][str(c)]["top_terms"][:10]))
+            st.caption("An unseen product or user defaults to an activity count of 1, so a "
+                       "short review of an obscure title tends toward the short-review "
+                       "segments. Pasted text also has no real timestamp; it is pinned to "
+                       "late 2012 (the live era), so temporal features are constant here.")
 
 
 # the six segments
@@ -160,9 +171,8 @@ with tab_map:
                           xaxis_showticklabels=False, yaxis_showticklabels=False)
         st.plotly_chart(fig, width="stretch")
         st.caption("t-SNE is only for visualization; distances between points are not "
-                   "meaningful. The segments overlap rather than sitting in tidy islands, "
-                   "which is the honest picture here: the reviews form a continuum. Hover "
-                   "to read each sampled review.")
+                   "meaningful. The segments overlap rather than sitting in tidy islands: "
+                   "the reviews form a continuum. Hover to read each sampled review.")
 
 
 # model selection and evaluation

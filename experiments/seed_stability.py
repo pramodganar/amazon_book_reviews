@@ -40,8 +40,6 @@ def main() -> None:
         print(f"  ARI seed {a:>3} vs {b:>3}: {v:.3f}")
     print(f"pairwise ARI  mean {np.mean(aris):.3f}  min {np.min(aris):.3f}  "
           f"max {np.max(aris):.3f}")
-    print("ARI ~1 means the partition is seed-robust; low ARI means the boundaries "
-          "are init-dependent (expected under weak separation).")
 
 
 if __name__ == "__main__":

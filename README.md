@@ -11,37 +11,6 @@ deep-divers, analytical essayists) and surface review topics, with **no
 labels**. Pure unsupervised learning on text, writing style, reviewer activity,
 and time.
 
-## The six segments
-
-MiniBatchKMeans, k=6, on a 210-dim feature space (200 topic dims from TF-IDF+SVD
-+ 10 structural/temporal/activity features). Sizes and terms are from the train
-split (`artifacts/cluster_meta.json`).
-
-| # | Segment | Size (train) | Top terms | One-line read |
-|---|---|---|---|---|
-| 0 | How-to / reference | 40,418 (19%) | helpful, useful, guide, illustrations | short, practical, product-focused |
-| 1 | Punchy popular-book reactor | 43,648 (21%) | loved, best, wait, buy | short, high-exclaim, hyped titles |
-| 2 | Prolific plot-summarizer | 16,744 (8%) | novel, tale, war | long (~1.7k ch), ~55 reviews/user |
-| 3 | General opinion | 41,712 (20%) | think, like, thought | medium length, soft catch-all |
-| 4 | Argumentative deep-diver | 21,905 (10%) | question, does, people | long, ~2.2 questions/review |
-| 5 | Analytical critic / essayist | 44,749 (21%) | reader, author, history, fact | long, zero questions |
-
-![k-selection: elbow and silhouette across k](reports/figures/k_selection.png)
-
-## Results at a glance
-
-- Segments are driven by **tone, length, and reviewer behavior**, not topic alone
-  (top separator: rhetorical `question_count`; then review length; then user
-  activity).
-- Honest headline: the reviews form a **continuum**, not crisp clusters
-  (silhouette < 0.08 across all k; seed-to-seed ARI ~0.32, so personas reproduce
-  but exact labels churn). k=6 is the most interpretable, balanced choice.
-- A **time-ordered** split exposes real drift: the "prolific reviewer" segment
-  nearly vanishes out of sample because user-activity features don't transfer to
-  new reviewers, a documented feature-design tradeoff.
-
-Full write-up: [`reports/report.md`](reports/report.md).
-
 ## Data
 
 Per the program guidelines
@@ -61,8 +30,36 @@ ten columns (including `Price`, `review/score`, `review/helpfulness`,
 
 The rating, price, helpfulness, and summary columns are **absent**, so there is no
 star rating or helpfulness signal — every feature is derived from the text, its
-shape, reviewer activity, and time. The discrepancy is stated plainly, not papered
-over; see [`reports/report.md`](reports/report.md) section 1.
+shape, reviewer activity, and time. The discrepancy is documented in
+[`reports/report.md`](reports/report.md) section 1.
+
+### Getting the data
+
+The table is distributed through the course's `clustering.db` and is not
+redistributed here. Its schema and the brief's original "~3M reviews" figure match
+the public [Amazon Books Reviews dataset on Kaggle](https://www.kaggle.com/datasets/mohamedbakhet/amazon-books-reviews)
+(`Books_rating.csv`); the delivered table is a 300k-row subset with the rating,
+price, helpfulness, and summary columns removed. Without the course file you can
+still run everything that doesn't retrain — the test suite and the Streamlit app
+(the fitted artifacts are committed). `train.py`, `evaluate.py`, and the
+`experiments/` scripts need the CSV at `data/raw/amazon_book_reviews.csv`.
+
+## Method summary
+
+1. **Clean**: drop exact duplicates, bad timestamps, empty text; keep anonymous
+   reviewers as distinct.
+2. **Split**: time-ordered 70/20/10 by `review/time`.
+3. **Features**: TF-IDF then TruncatedSVD (200) for text; six structural/tone
+   features + day-of-week/year + user/product activity counts for numeric;
+   `log1p` on skewed features; two blocks balanced to equal variance.
+4. **Model**: MiniBatchKMeans, k=6 (chosen after an elbow/silhouette sweep and
+   rejecting DBSCAN, which collapses in high dimensions; see
+   `experiments/model_selection.py`).
+5. **Evaluate**: internal metrics on train/eval/live, cluster-share and
+   centroid-distance drift, representative reviews per cluster (`evaluate.py`).
+
+See [`reports/report.md`](reports/report.md) for the reasoning, the cluster
+"feature importance" analysis, and limitations.
 
 ## Architecture
 
@@ -78,6 +75,40 @@ Everything stateful (TF-IDF, SVD, scalers, activity counts, KMeans) is fit on th
 **train split only**; eval/live are transform-only. This guarantees feature parity
 between train and predict time.
 
+## The six segments
+
+MiniBatchKMeans, k=6, on a 210-dim feature space (200 topic dims from TF-IDF+SVD
++ 10 structural/temporal/activity features). Sizes and terms are from the train
+split (`artifacts/cluster_meta.json`).
+
+| # | Segment | Size (train) | Signature terms (from top-12) | One-line read |
+|---|---|---|---|---|
+| 0 | How-to / reference | 40,418 (19%) | helpful, useful, guide, illustrations | short, practical, product-focused |
+| 1 | Punchy popular-book reactor | 43,648 (21%) | loved, best, wait, buy | short, high-exclaim, hyped titles |
+| 2 | Prolific plot-summarizer | 16,744 (8%) | novel, tale, war | long (~1.7k ch), ~55 reviews/user |
+| 3 | General opinion | 41,712 (20%) | think, like, thought | medium length, soft catch-all |
+| 4 | Argumentative deep-diver | 21,905 (10%) | question, does, people | long, ~2.2 questions/review |
+| 5 | Analytical critic / essayist | 44,749 (21%) | reader, author, history, fact | long, zero questions |
+
+The "Signature terms" pick the persona-defining words from each cluster's top-12
+distinctive terms; the full ranked lists are in `artifacts/cluster_meta.json`.
+
+![k-selection: elbow and silhouette across k](reports/figures/k_selection.png)
+
+## Results at a glance
+
+- Segments are driven by **tone, length, and reviewer behavior**, not topic alone
+  (top separator: rhetorical `question_count`; then review length; then
+  day-of-week — a low-cardinality artifact, see limitations; then user activity).
+- The reviews form a **continuum**, not crisp clusters (silhouette < 0.08 across
+  all k; seed-to-seed ARI ~0.32, so personas reproduce but exact labels churn).
+  k=6 is the most interpretable, balanced choice.
+- A **time-ordered** split exposes real drift: the "prolific reviewer" segment
+  nearly vanishes out of sample because user-activity features don't transfer to
+  new reviewers, a documented feature-design tradeoff.
+
+Full write-up: [`reports/report.md`](reports/report.md).
+
 ## Setup
 
 ```bash
@@ -85,7 +116,8 @@ python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\act
 pip install -r requirements.txt
 ```
 
-Python 3.11. Place the data at `data/raw/amazon_book_reviews.csv`.
+Python 3.11. Place the data at `data/raw/amazon_book_reviews.csv` (see
+"Getting the data" above).
 
 ## Usage
 
@@ -107,7 +139,8 @@ python predict.py reviews.csv --out labelled.csv
 ```
 
 Reproduce the model-selection and evaluation numbers in the report (both read the
-artifacts written by `train.py`):
+artifacts written by `train.py`; `model_selection.py` needs
+`requirements-dev.txt` for matplotlib):
 
 ```bash
 python experiments/model_selection.py   # k-sweep + DBSCAN/Agglomerative, rebuilds k_selection.png
@@ -130,23 +163,6 @@ streamlit run app.py
 The repo ships the fitted artifacts the app needs at runtime (pipeline, model,
 cluster metadata, 2D map), so the deployed demo runs without local training; the
 raw CSV is only needed to retrain or run `evaluate.py` / `model_selection.py`.
-
-## Method summary
-
-1. **Clean**: drop exact duplicates, bad timestamps, empty text; keep anonymous
-   reviewers as distinct.
-2. **Split**: time-ordered 70/20/10 by `review/time`.
-3. **Features**: TF-IDF then TruncatedSVD (200) for text; six structural/tone
-   features + day-of-week/year + user/product activity counts for numeric;
-   `log1p` on skewed features; two blocks balanced to equal variance.
-4. **Model**: MiniBatchKMeans, k=6 (chosen after an elbow/silhouette sweep and
-   rejecting DBSCAN, which collapses in high dimensions; see
-   `experiments/model_selection.py`).
-5. **Evaluate**: internal metrics on train/eval/live, cluster-share and
-   centroid-distance drift, representative reviews per cluster (`evaluate.py`).
-
-See [`reports/report.md`](reports/report.md) for the reasoning, the cluster
-"feature importance" analysis, and limitations.
 
 ## Limitations
 
@@ -180,6 +196,7 @@ data/raw/              input CSV (+ Data Card, problem statement)
 artifacts/             fitted objects + config (created by train.py)
 reports/report.md      full write-up
 reports/figures/       k-selection curves
+DECISIONS.md           design decisions with one-line rationale
 ```
 
 ## Tests

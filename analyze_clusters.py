@@ -64,7 +64,7 @@ def main() -> None:
                      for k, v in sorted(zip(num.columns, F), key=lambda t: -t[1])}
 
     # Cluster-share drift across the time-ordered splits. Train is reused from
-    # above; eval/live are transform-only (the whole point of the shared pipeline).
+    # above; eval/live are transform-only.
     def shares(labs):
         b = np.bincount(labs, minlength=P.N_CLUSTERS) / len(labs)
         return {str(c): round(float(b[c]), 4) for c in range(P.N_CLUSTERS)}

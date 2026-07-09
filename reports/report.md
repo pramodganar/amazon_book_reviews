@@ -105,7 +105,7 @@ by k=8 to 10 - never negative, but never strong), and the partitions stay lopsid
 (a ~25-point micro-cluster persists from k=4 on). Same continuum-like structure as
 KMeans, no clean partition at any k.
 
-**The honest headline: these reviews are a continuum, not crisp clusters.**
+**The headline result: these reviews are a continuum, not crisp clusters.**
 Silhouette never exceeds ~0.064 (at the degenerate k=2) and stays around 0.03 to
 0.04 for every usable k; inertia has no sharp elbow. This is expected for
 high-dimensional text and I'm not going to pretend otherwise. k=2 is
@@ -147,7 +147,10 @@ this table and the distance drift below:
 | eval  | 0.051 | 3.33 | 2671 |
 | live  | 0.023 | 3.45 | 763 |
 
-Geometry holds across splits; clusters don't collapse out of sample.
+Geometry holds across splits; clusters don't collapse out of sample. Eval scoring
+slightly above train (0.051 vs 0.034) plausibly reflects the eval window being a
+narrower, more homogeneous era plus the 15k silhouette sampling — untested, and
+either way a ~0.02 difference on a sub-0.05 metric is too small to carry meaning.
 
 **Seed stability (Adjusted Rand Index).** Refitting MiniBatchKMeans at five seeds
 on the *same* feature matrix (only the clustering init changes) gives a pairwise
@@ -178,7 +181,7 @@ max 6.9). In production this model would need periodic refitting. That far tail 
 also a natural **anomaly / fake-review detection** hook: reviews sitting far from
 every centroid are the outliers to inspect.
 
-## 7. Limitations (honest)
+## 7. Limitations
 
 1. **Weak separation.** Low silhouette everywhere; the segments are real tendencies
    along a continuum, not clean partitions. c3 in particular is a soft catch-all.
